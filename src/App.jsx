@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState,useRef } from 'react'
 import './App.css'
 
 function App() {
@@ -7,24 +7,34 @@ function App() {
   const [addChar,setAddChar] = useState(false);
   const [Password,setPassword] = useState("")
 
+  // useRef hook
+  const passwordRef = useRef(null)
+
   const passwordGenerator = useCallback(() => {
    let Password = ""
    let string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     if(addNum) string += "0123456789"
     if(addChar) string += "!@#$%^&*-_+=[]{}~`"
 
-    for(let i = 1; i <= array.length; i++){
+    for(let i = 1; i <= length; i++){
       let char = Math.floor(Math.random() * string.length + 1)
-      Password = string.charAt(char)
+      Password += string.charAt(char)
     }
 
     setPassword(Password)
 
-
-
-
-
   }, [length,addNum,addChar,setPassword])
+
+  const copyPasswordToClipBoard = useCallback(() => {
+    passwordRef.current?.select();
+    passwordRef.current?.setSelectionRange(0,99)
+    window.navigator.clipboard.writeText(Password)
+  },[Password])
+  
+  useEffect(() => {
+    passwordGenerator()
+  }, [length, addChar, addNum, passwordGenerator])
+
 
   return (
     <>
@@ -35,9 +45,11 @@ function App() {
        className='outline-none w-full py-1 px-3'
        placeholder='password'
        readOnly
+       ref={passwordRef}
        />
 
-       <button className='outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0'>copy</button>
+       <button
+       onClick={copyPasswordToClipBoard} className='outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0  hover:bg-green-700'>copy</button>
 
       </div>
 
@@ -54,6 +66,32 @@ function App() {
 
                  <label>Length:{length}</label>
             </div>
+
+            <div className='flex items-center gap-x-1'>
+            <input 
+                 type="checkbox"
+                 defaultChecked={addNum}
+                 id='numInput'
+                 onChange={() => {
+                  setAddNum((prev) => (!prev))
+                 }}
+                 />
+                 <label htmlFor="numberInput">Numbers</label>
+            </div>
+
+            <div className='flex items-center gap-x-1'>
+            <input 
+                 type="checkbox"
+                 defaultChecked={addChar}
+                 id='numInput'
+                 onChange={() => {
+                  setAddChar((prev) => (!prev))
+                 }}
+                 />
+                 <label htmlFor="numberInput">Character</label>
+            </div>
+
+            
       </div>
     </div>
 
